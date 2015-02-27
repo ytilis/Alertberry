@@ -1,5 +1,10 @@
 #!/bin/bash
 
+PB_API=""
+
+PB_TITLE="Alarm Triggered!"
+PB_MSG="The alarm was set off on $(date +"%a %b %d, %Y at%r")"
+
 MICROPHONE='QuickCam Pro 9000'
 SAMPLE_DURATION=2 # seconds
 FORMAT='CD'
@@ -17,7 +22,7 @@ do
 
   if [ $COMPARE -eq 1 ]; then
     echo "Audio Detected! : Level $AMPLITUDE"
-    ./push.sh
+    curl -u $PB_API: https://api.pushbullet.com/v2/pushes -d type=note -d title="$PB_TITLE" -d body="$PB_MSG"
   else
     echo "No audio : Level $AMPLITUDE"
   fi
