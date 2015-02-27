@@ -1,0 +1,4 @@
+**** List of CAPTURE Hardware Devices ****
+card 1: Q9000 [QuickCam Pro 9000], device 0: USB Audio [USB Audio]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
