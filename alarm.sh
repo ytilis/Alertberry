@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# Make sure dependencies are installed
-dependencies=('arecord' 'sox');
-for i in "${dependencies[@]}"
-do
-  dpkg -s $i 2>/dev/null >/dev/null || sudo apt-get -y install $i
-done
-
 MICROPHONE='QuickCam Pro 9000'
 HWDEVICE=$(arecord -l | grep "$MICROPHONE"  | awk '{ gsub(":",""); print $2}')
 SAMPLE_DURATION=5 # seconds
