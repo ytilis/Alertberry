@@ -1,4 +1,0 @@
-0 [ALSA           ]: BRCM bcm2835 ALSbcm2835 ALSA - bcm2835 ALSA
-                     bcm2835 ALSA
-1 [Q9000          ]: USB-Audio - QuickCam Pro 9000
-                     Logitech, Inc. QuickCam Pro 9000 at usb-bcm2708_usb-1.3, high speed
