@@ -1,4 +1,4 @@
-# Alarmberry  
+# Alertberry  
 
 Bash script to listen for audio and send a [Pushbullet](http://pushbullet.com) notification if a loud enough noise is heard
 
