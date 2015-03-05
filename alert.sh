@@ -15,23 +15,23 @@ function push_notify() {
     # Get exit code
     RET=$?
 
-    if [[ $RET -ne 0 ]] ; then
+    if [[ $RET != 0 ]] ; then
       # If error exit code, print exit code
-      echo "Error $RET"
+      echo "${red}ERROR${normal}: $RET"
 
       # Print HTTP error
-      echo "HTTP Error: $(echo "$OUT" | tail -n1 )"
+      echo "HTTP ${red}ERROR${normal}: $(echo "$OUT" | tail -n1 )"
     else
       STATUS=$(echo "$OUT" | tail -n1)    # HTTP Status
       RESPONSE=$(echo "$OUT" | head -n-1) # HTTP Body
 
-      if [[ $STATUS -eq '200' ]] ; then
+      if [[ $STATUS == '200' ]] ; then
         # Success
-        echo "$NAME has been alerted"
+        echo "  ${underline}$NAME${normal} has been alerted"
       else
         # Failure
         MESSAGE=$(parse_json "$RESPONSE" message)
-        echo "Error alerting $NAME: $STATUS - $MESSAGE"
+        echo "  ${red}ERROR${normal}: Alerting ${underline}$NAME${normal}: $STATUS - $MESSAGE"
       fi
     fi
 
@@ -41,9 +41,16 @@ function push_notify() {
 # Import configs
 source alert.cfg
 
+# Get text styles
+red=$(tput setaf 1)
+yellow=$(tput setaf 3)
+bold=$(tput bold)
+underline=$(tput smul)
+normal=$(tput sgr0)
+
 # Make sure targets file exists, otherwise exit
 if [ ! -f $PB_TRGTS ]; then
-    echo "Push targets file '$PB_TRGTS' not found!"
+    echo "${red}ERROR${normal}: Push targets file '$PB_TRGTS' not found!"
     exit
 fi
 
@@ -56,15 +63,13 @@ do
   # Figure out how loud the last segment of audio was
   AMPLITUDE=$(arecord -D plughw:$HWDEVICE,0 -d $SAMPLE_DURATION -f $FORMAT 2>/dev/null | sox -t .wav - -n stat 2>&1 | grep 'Maximum amplitude:'  | awk '{print $3}')
 
-  # Echo the Amplitude if --verbose is set
-
   # See if the volume is over the threshold variable
   COMPARE=$(echo "$AMPLITUDE > $THRESHOLD" | bc)
 
-  if [ $COMPARE -eq 1 ]; then
-    echo "Audio Detected! : Level $AMPLITUDE : $(date +"%a %b %d, %Y at %r")"
+  if [ $COMPARE == 1 ]; then
+    echo "${yellow}ALERT!${normal} Level $AMPLITUDE : $(date +"%a %b %d, %Y at %r")"
     push_notify
   else
-    echo "No audio : Level $AMPLITUDE"
+    [ "$SHOW_LEVELS" == true ] && echo "No alert : Level $AMPLITUDE"
   fi
 done
