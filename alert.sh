@@ -1,21 +1,14 @@
 #!/bin/bash
 
 function parse_json() {
-  # save current IFS
-  OLDIFS=$IFS
-
-  IFS=' '
+  local IFS=' '
   echo $1 | sed -e 's/[{}]/''/g' | awk -F=':' -v RS=',' "\$1~/\"$2\"/ {print}" | sed -e "s/\"$2\"://" | tr -d "\n\t" | sed -e 's/\\"/"/g' | sed -e 's/\\\\/\\/g' | sed -e 's/^[ \t]*//g' | sed -e 's/^"//'  -e 's/"$//'
-
-  # reset the IFS
-  IFS=$OLDIFS
 }
 
 function push_notify() {
-  IFS=:
+  local IFS=:
   # Get the colon delimited list of people to notify
-  while read NAME TOKEN
-  do
+  while read NAME TOKEN || [ -n "$NAME" ]; do
     # Call Pushbullet
     OUT=$(curl --silent --show-error --write-out '\n%{http_code}' -u $TOKEN: https://api.pushbullet.com/v2/pushes -d type=note -d title="$PB_TITLE" -d body="$PB_MSG") 2>/dev/null
 
@@ -42,11 +35,17 @@ function push_notify() {
       fi
     fi
 
-  done < targets.txt
+  done < $PB_TRGTS
 }
 
 # Import configs
 source alert.cfg
+
+# Make sure targets file exists, otherwise exit
+if [ ! -f $PB_TRGTS ]; then
+    echo "Push targets file '$PB_TRGTS' not found!"
+    exit
+fi
 
 # Get microphone device ID from the name
 HWDEVICE=$(arecord -l | grep "$MICROPHONE"  | awk '{ gsub(":",""); print $2}')
