@@ -1,14 +1,6 @@
 #!/bin/bash
 
-PB_API=""
-
-PB_TITLE="Alarm Triggered!"
-PB_MSG="The alarm was set off on $(date +"%a %b %d, %Y at%r")"
-
-MICROPHONE='USB PnP Sound Device'
-SAMPLE_DURATION=2 # seconds
-FORMAT='CD'
-THRESHOLD=0.9
+source alert.cfg
 
 HWDEVICE=$(arecord -l | grep "$MICROPHONE"  | awk '{ gsub(":",""); print $2}')
 
