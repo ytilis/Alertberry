@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Function courtesy of: http://stackoverflow.com/a/26655887/165963
 function parse_json() {
   local IFS=' '
   echo $1 | sed -e 's/[{}]/''/g' | awk -F=':' -v RS=',' "\$1~/\"$2\"/ {print}" | sed -e "s/\"$2\"://" | tr -d "\n\t" | sed -e 's/\\"/"/g' | sed -e 's/\\\\/\\/g' | sed -e 's/^[ \t]*//g' | sed -e 's/^"//'  -e 's/"$//'
