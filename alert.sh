@@ -39,18 +39,23 @@ function push_notify() {
   done < $PB_TRGTS
 }
 
-# Import configs
-source alert.cfg
-
-# Get microphone device ID from the name
-HWDEVICE=$(arecord -l | grep "$MICROPHONE"  | awk '{ gsub(":",""); print $2}')
-
 # Get text styles
 red=$(tput setaf 1)
 yellow=$(tput setaf 3)
 bold=$(tput bold)
 underline=$(tput smul)
 normal=$(tput sgr0)
+
+
+# Import configs
+source alert.cfg
+
+# Get microphone device ID from the name
+HWDEVICE=$(arecord -l | grep "$MICROPHONE"  | awk '{ gsub(":",""); print $2}')
+
+# Check dependencies
+command -v arecord >/dev/null 2>&1 || { echo >&2 "${red}ERROR${normal}: 'arecord' must be installed!"; exit 1; }
+command -v sox >/dev/null 2>&1 || { echo >&2 "${red}ERROR${normal}: 'sox' must be installed!"; exit 1; }
 
 # Make sure targets file exists, otherwise exit
 if [ ! -f $PB_TRGTS ]; then
