@@ -58,9 +58,14 @@ fi
 # Get microphone device ID from the name
 HWDEVICE=$(arecord -l | grep "$MICROPHONE"  | awk '{ gsub(":",""); print $2}')
 
+# Counters to determine how long the alarm has been firing/quiet
+QUIET=0
+LOUD=0
+
 # Listen
-while :
-do
+echo "Listening..."
+
+while true; do
   # Figure out how loud the last segment of audio was
   AMPLITUDE=$(arecord -D plughw:$HWDEVICE,0 -d $SAMPLE_DURATION -f $FORMAT 2>/dev/null | sox -t .wav - -n stat 2>&1 | grep 'Maximum amplitude:'  | awk '{print $3}')
 
@@ -68,9 +73,29 @@ do
   COMPARE=$(echo "$AMPLITUDE > $THRESHOLD" | bc)
 
   if [ $COMPARE == 1 ]; then
+    # If sound has been detected
     echo "${yellow}ALERT!${normal} Level $AMPLITUDE : $(date +"%a %b %d, %Y at %r")"
-    push_notify
+
+    # Only send the notification if it's the first time we're hearing this sound
+    if [ $LOUD == 0 ]; then
+      push_notify
+    fi
+
+    # Set/reset counters
+    QUIET=0
+    (( LOUD++ ))
   else
+    # If no sound has been detected
     [ "$SHOW_LEVELS" == true ] && echo "No alert : Level $AMPLITUDE"
+
+    # Make sure it's been quiet for while before assuming the noise has stopped
+    if [ $QUIET == 3 ]; then
+      LOUD=0
+    fi
+
+    # Stop counting how long it's been quiet after a while
+    if (( "$QUIET" < 10 )); then
+      (( QUIET++ ))
+    fi
   fi
 done
