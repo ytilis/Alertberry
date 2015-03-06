@@ -42,6 +42,9 @@ function push_notify() {
 # Import configs
 source alert.cfg
 
+# Get microphone device ID from the name
+HWDEVICE=$(arecord -l | grep "$MICROPHONE"  | awk '{ gsub(":",""); print $2}')
+
 # Get text styles
 red=$(tput setaf 1)
 yellow=$(tput setaf 3)
@@ -55,8 +58,12 @@ if [ ! -f $PB_TRGTS ]; then
     exit
 fi
 
-# Get microphone device ID from the name
-HWDEVICE=$(arecord -l | grep "$MICROPHONE"  | awk '{ gsub(":",""); print $2}')
+# Make sure that we can find the specified microphone
+if [ -z $HWDEVICE ]; then
+  echo "${red}ERROR${normal}: Microphone '$MICROPHONE' not found!"
+  echo "Use 'arecord -l' to list your audio devices."
+  exit
+fi
 
 # Counters to determine how long the alarm has been firing/quiet
 QUIET=0
