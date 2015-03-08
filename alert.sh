@@ -46,6 +46,8 @@ bold=$(tput bold)
 underline=$(tput smul)
 normal=$(tput sgr0)
 
+# Make sure we're in the local directory to properly reference config files
+cd "${BASH_SOURCE%/*}" || exit
 
 # Import configs
 source alert.cfg
